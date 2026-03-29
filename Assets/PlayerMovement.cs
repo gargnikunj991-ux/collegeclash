@@ -1,46 +1,49 @@
 using UnityEngine;
 
+[RequireComponent(typeof(CharacterController))]
 public class PlayerMovement : MonoBehaviour
 {
-    public float speed = 8f;
-    Rigidbody rb;
+    // Renamed from moveSpeed to speed to fix your CS1061 errors
+    public float speed = 5f;
+    public float rotationSpeed = 720f;
+    public float gravity = -9.81f;
+
+    private CharacterController controller;
+    private Vector3 velocity;
+    private Vector2 moveInput;
 
     void Start()
     {
-        rb = GetComponent<Rigidbody>();
+        controller = GetComponent<CharacterController>();
     }
 
-    void FixedUpdate()
-    {
-        float x = Input.GetAxis("Horizontal");
-        float z = Input.GetAxis("Vertical");
-
-        Vector3 move = new Vector3(x, 0, z);
-        rb.linearVelocity = move * speed;
-    }
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
+        // 1. Get Input
+        moveInput.x = Input.GetAxis("Horizontal");
+        moveInput.y = Input.GetAxis("Vertical");
+
+        Vector3 moveDirection = new Vector3(moveInput.x, 0, moveInput.y).normalized;
+
+        // 2. Handle Movement
+        if (moveDirection.magnitude >= 0.1f)
         {
-            Ability ability = GetComponent<Ability>();
-            if (ability != null)
-            {
-                ability.TryUse();
-            }
+            // Rotate toward movement direction
+            float targetAngle = Mathf.Atan2(moveDirection.x, moveDirection.z) * Mathf.Rad2Deg;
+            float angle = Mathf.MoveTowardsAngle(transform.eulerAngles.y, targetAngle, rotationSpeed * Time.deltaTime);
+            transform.rotation = Quaternion.Euler(0, angle, 0);
+
+            // Using 'speed' here to match your other scripts
+            controller.Move(moveDirection * speed * Time.deltaTime);
         }
-    }
 
-
-    public float pushForce = 10f;
-
-    void OnCollisionEnter(Collision collision)
-    {
-        if (collision.gameObject.CompareTag("Player"))
+        // 3. Handle Gravity
+        if (controller.isGrounded && velocity.y < 0)
         {
-            Rigidbody rb = collision.gameObject.GetComponent<Rigidbody>();
-
-            Vector3 dir = collision.transform.position - transform.position;
-            rb.AddForce(dir.normalized * pushForce, ForceMode.Impulse);
+            velocity.y = -2f;
         }
+
+        velocity.y += gravity * Time.deltaTime;
+        controller.Move(velocity * Time.deltaTime);
     }
 }

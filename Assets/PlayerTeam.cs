@@ -1,6 +1,10 @@
 using UnityEngine;
 
+// This defines the only possible options for teams
+public enum TeamSide { None, TeamA, TeamB }
+
 public class PlayerTeam : MonoBehaviour
 {
-    public int teamID = 0; // 0 = player, 1 = bot
+    // This creates a dropdown menu in the Unity Inspector
+    public TeamSide team = TeamSide.None;
 }
