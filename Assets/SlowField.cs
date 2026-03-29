@@ -9,28 +9,21 @@ public class SlowField : Ability
     protected override void Activate()
     {
         Collider[] hits = Physics.OverlapSphere(transform.position, radius);
-
         foreach (var hit in hits)
         {
             if (hit.CompareTag("Player"))
             {
                 PlayerMovement m = hit.GetComponent<PlayerMovement>();
-                if (m != null)
-                {
-                    StartCoroutine(ApplySlowEffect(m));
-                }
+                if (m != null) StartCoroutine(ApplySlow(m));
             }
         }
     }
 
-    IEnumerator ApplySlowEffect(PlayerMovement m)
+    IEnumerator ApplySlow(PlayerMovement m)
     {
-        float originalSpeed = m.speed;
-        m.speed = originalSpeed * 0.5f;
-
+        float oldSpeed = m.speed;
+        m.speed *= 0.5f;
         yield return new WaitForSeconds(slowDuration);
-
-        // Reset to exactly the original speed to prevent multiplier stacking
-        m.speed = originalSpeed;
+        m.speed = oldSpeed;
     }
 }

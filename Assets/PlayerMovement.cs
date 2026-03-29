@@ -3,7 +3,6 @@ using UnityEngine;
 [RequireComponent(typeof(CharacterController))]
 public class PlayerMovement : MonoBehaviour
 {
-    // Renamed from moveSpeed to speed to fix your CS1061 errors
     public float speed = 5f;
     public float rotationSpeed = 720f;
     public float gravity = -9.81f;

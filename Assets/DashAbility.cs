@@ -1,33 +1,29 @@
 using UnityEngine;
+using System.Collections;
 
 public class DashAbility : Ability
 {
     public float dashForce = 20f;
     public float dashDuration = 0.2f;
-
     private CharacterController controller;
-    private PlayerMovement movement;
 
     void Start()
     {
         controller = GetComponent<CharacterController>();
-        movement = GetComponent<PlayerMovement>();
     }
 
     protected override void Activate()
     {
-        // Logic for the dash
-        Vector3 dashDir = transform.forward * dashForce;
-        StartCoroutine(PerformDash(dashDir));
+        StartCoroutine(PerformDash());
     }
 
-    private System.Collections.IEnumerator PerformDash(Vector3 direction)
+    IEnumerator PerformDash()
     {
-        float timer = 0;
-        while (timer < dashDuration)
+        float startTime = Time.time;
+        while (Time.time < startTime + dashDuration)
         {
-            controller.Move(direction * Time.deltaTime);
-            timer += Time.deltaTime;
+            // Moves the player forward quickly
+            controller.Move(transform.forward * dashForce * Time.deltaTime);
             yield return null;
         }
     }

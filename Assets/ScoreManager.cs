@@ -3,6 +3,9 @@ using TMPro;
 
 public class ScoreManager : MonoBehaviour
 {
+    // Adding Instance so CaptureZone can find this script easily
+    public static ScoreManager Instance;
+
     [Header("Scores")]
     public int blueScore = 0;
     public int redScore = 0;
@@ -14,10 +17,16 @@ public class ScoreManager : MonoBehaviour
     public TextMeshProUGUI winnerText;
 
     [Header("Match Settings")]
-    public float matchTime = 120f;
+    public float matchTime = 300f; // Set to 300 for 5 minutes
 
     private float timer;
     private bool ended = false;
+
+    void Awake()
+    {
+        // Setup the Singleton instance
+        if (Instance == null) Instance = this;
+    }
 
     void Start()
     {
@@ -46,11 +55,13 @@ public class ScoreManager : MonoBehaviour
         }
     }
 
+    // CaptureZone will call this function
     public void AddPoint(int team)
     {
+        if (ended) return;
+
         if (team == 0)
             blueScore++;
-
         else if (team == 1)
             redScore++;
 
@@ -59,6 +70,7 @@ public class ScoreManager : MonoBehaviour
 
     void UpdateUI()
     {
+        // Fixing the names here so they match your screen
         if (blueScoreText != null)
             blueScoreText.text = "Blue: " + blueScore;
 
@@ -72,17 +84,18 @@ public class ScoreManager : MonoBehaviour
     void EndMatch()
     {
         ended = true;
-        Time.timeScale = 0f;
+        // Optional: comment out Time.timeScale if you want players to still move after it ends
+        // Time.timeScale = 0f; 
 
         if (winnerText == null) return;
 
         winnerText.gameObject.SetActive(true);
 
         if (blueScore > redScore)
-            winnerText.text = "Blue Wins!";
+            winnerText.text = "BLUE TEAM WINS!";
         else if (redScore > blueScore)
-            winnerText.text = "Red Wins!";
+            winnerText.text = "RED TEAM WINS!";
         else
-            winnerText.text = "Draw!";
+            winnerText.text = "DRAW!";
     }
 }

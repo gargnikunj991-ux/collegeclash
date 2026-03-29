@@ -153,7 +153,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -85, y: -20}
+  m_AnchoredPosition: {x: -25, y: -20}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &9991805
@@ -176,7 +176,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Team B: 0'
+  m_text: Red:0
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -288,6 +288,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 797d956c24809714ab525c5db5d3a13c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  pointsPerSecond: 1
+  zoneRenderer: {fileID: 0}
+  blueColor: {r: 0, g: 0, b: 1, a: 1}
+  redColor: {r: 1, g: 0, b: 0, a: 1}
+  neutralColor: {r: 1, g: 1, b: 1, a: 1}
+  contestedColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
 --- !u!135 &114706882
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -427,7 +433,7 @@ MonoBehaviour:
   redScoreText: {fileID: 9991805}
   timerText: {fileID: 789553129}
   winnerText: {fileID: 1539624432}
-  matchTime: 120
+  matchTime: 300
 --- !u!1 &366807721
 GameObject:
   m_ObjectHideFlags: 0
@@ -460,6 +466,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 797d956c24809714ab525c5db5d3a13c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  pointsPerSecond: 1
+  zoneRenderer: {fileID: 0}
+  blueColor: {r: 0, g: 0, b: 1, a: 1}
+  redColor: {r: 1, g: 0, b: 0, a: 1}
+  neutralColor: {r: 1, g: 1, b: 1, a: 1}
+  contestedColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
 --- !u!135 &366807723
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -581,6 +593,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 797d956c24809714ab525c5db5d3a13c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  pointsPerSecond: 1
+  zoneRenderer: {fileID: 0}
+  blueColor: {r: 0, g: 0, b: 1, a: 1}
+  redColor: {r: 1, g: 0, b: 0, a: 1}
+  neutralColor: {r: 1, g: 1, b: 1, a: 1}
+  contestedColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
 --- !u!135 &470210081
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -797,8 +815,12 @@ GameObject:
   - component: {fileID: 737647430}
   - component: {fileID: 737647431}
   - component: {fileID: 737647432}
+  - component: {fileID: 737647435}
+  - component: {fileID: 737647434}
+  - component: {fileID: 737647433}
+  - component: {fileID: 737647436}
   m_Layer: 6
-  m_Name: Player
+  m_Name: Player A
   m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -950,6 +972,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   team: 1
+  unitType: 0
 --- !u!114 &737647429
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -989,7 +1012,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3a5992976b5aaf0478a9c89cce15eabf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  role: 0
+  currentRole: 1
 --- !u!143 &737647432
 CharacterController:
   m_ObjectHideFlags: 0
@@ -1015,6 +1038,67 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &737647433
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 737647420}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c87a7db32c4a2041927fb67fc502c7b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cooldown: 5
+  radius: 5
+  slowDuration: 2
+--- !u!114 &737647434
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 737647420}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d17377eb56e682742b761159a4afeda3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cooldown: 5
+  dashForce: 20
+  dashDuration: 0.2
+--- !u!114 &737647435
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 737647420}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe91b1e23c835c340b414f4611f2b7d5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cooldown: 5
+  pushForce: 50
+  pushRadius: 5
+--- !u!114 &737647436
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 737647420}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5386393e983cd4642a6438fe99b5b49d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ability1: {fileID: 0}
+  ability2: {fileID: 0}
+  key1: 101
+  key2: 113
 --- !u!1 &789553127
 GameObject:
   m_ObjectHideFlags: 0
@@ -1072,7 +1156,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Time: 120
+  m_text: 'Time: 300
 
 '
   m_isRightToLeft: 0
@@ -1649,6 +1733,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   team: 2
+  unitType: 0
 --- !u!1 &1106968941
 GameObject:
   m_ObjectHideFlags: 0
@@ -2474,7 +2559,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Team A: 0'
+  m_text: Blue:0
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
