@@ -1,48 +1,38 @@
 using UnityEngine;
 
-[RequireComponent(typeof(CharacterController))]
+[RequireComponent(typeof(Rigidbody))]
 public class PlayerMovement : MonoBehaviour
 {
-    public float speed = 5f;
+    public float speed = 6f;
     public float rotationSpeed = 720f;
-    public float gravity = -9.81f;
 
-    private CharacterController controller;
-    private Vector3 velocity;
-    private Vector2 moveInput;
+    private Rigidbody rb;
+    private Vector3 moveInput;
 
     void Start()
     {
-        controller = GetComponent<CharacterController>();
+        rb = GetComponent<Rigidbody>();
+
+        rb.freezeRotation = true; // prevent falling over
     }
 
-    void Update()
+    void FixedUpdate()
     {
-        // 1. Get Input
-        moveInput.x = Input.GetAxis("Horizontal");
-        moveInput.y = Input.GetAxis("Vertical");
+        float h = Input.GetAxis("Horizontal");
+        float v = Input.GetAxis("Vertical");
 
-        Vector3 moveDirection = new Vector3(moveInput.x, 0, moveInput.y).normalized;
+        moveInput = new Vector3(h, 0, v).normalized;
 
-        // 2. Handle Movement
-        if (moveDirection.magnitude >= 0.1f)
+        if (moveInput.magnitude >= 0.1f)
         {
-            // Rotate toward movement direction
-            float targetAngle = Mathf.Atan2(moveDirection.x, moveDirection.z) * Mathf.Rad2Deg;
-            float angle = Mathf.MoveTowardsAngle(transform.eulerAngles.y, targetAngle, rotationSpeed * Time.deltaTime);
-            transform.rotation = Quaternion.Euler(0, angle, 0);
+            // Move
+            Vector3 move = moveInput * speed;
+            rb.MovePosition(rb.position + move * Time.fixedDeltaTime);
 
-            // Using 'speed' here to match your other scripts
-            controller.Move(moveDirection * speed * Time.deltaTime);
+            // Rotate
+            float targetAngle = Mathf.Atan2(moveInput.x, moveInput.z) * Mathf.Rad2Deg;
+            float angle = Mathf.MoveTowardsAngle(transform.eulerAngles.y, targetAngle, rotationSpeed * Time.fixedDeltaTime);
+            rb.MoveRotation(Quaternion.Euler(0, angle, 0));
         }
-
-        // 3. Handle Gravity
-        if (controller.isGrounded && velocity.y < 0)
-        {
-            velocity.y = -2f;
-        }
-
-        velocity.y += gravity * Time.deltaTime;
-        controller.Move(velocity * Time.deltaTime);
     }
 }
