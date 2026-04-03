@@ -14,7 +14,8 @@ public class PlayerMovement : MonoBehaviour
 
     private CharacterController controller;
     private Vector2 moveInput;
-
+    private Vector3 velocity;
+    public float gravity = -9.81f;
     void Start()
     {
         controller = GetComponent<CharacterController>();
@@ -42,6 +43,8 @@ public class PlayerMovement : MonoBehaviour
     {
         Vector3 camForward = cameraTransform.forward;
         Vector3 camRight = cameraTransform.right;
+        velocity.y += gravity * Time.deltaTime;
+        controller.Move(velocity * Time.deltaTime);
 
         camForward.y = 0;
         camRight.y = 0;
@@ -52,6 +55,10 @@ public class PlayerMovement : MonoBehaviour
         Vector3 move = camForward * moveInput.y + camRight * moveInput.x;
 
         controller.Move(move * speed * Time.deltaTime);
+        if (controller.isGrounded && velocity.y < 0)
+        {
+            velocity.y = -2f;
+        }
     }
     void RotateToMouse()
     {
@@ -77,7 +84,6 @@ public class PlayerMovement : MonoBehaviour
     void Shoot()
     {
         GameObject bullet = Instantiate(bulletPrefab, firePoint.position, firePoint.rotation);
-        Rigidbody rb = bullet.GetComponent<Rigidbody>();
-        rb.linearVelocity = firePoint.forward * bulletSpeed;
+    
     }
 }
