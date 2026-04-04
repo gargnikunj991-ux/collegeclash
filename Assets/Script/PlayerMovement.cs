@@ -7,10 +7,7 @@ public class PlayerMovement : MonoBehaviour
     public float speed = 5f;
     public Transform cameraTransform;
 
-    [Header("Shooting")]
-    public GameObject bulletPrefab;
-    public Transform firePoint;
-    public float bulletSpeed = 20f;
+    public Gun gun;
 
     private CharacterController controller;
     private Vector2 moveInput;
@@ -30,7 +27,7 @@ public class PlayerMovement : MonoBehaviour
     // Shoot input
     void OnShoot()
     {
-        Shoot();
+        gun.TryShoot();
     }
 
     void Update()
@@ -81,9 +78,4 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    void Shoot()
-    {
-        GameObject bullet = Instantiate(bulletPrefab, firePoint.position, firePoint.rotation);
-    
-    }
-}
+}    
