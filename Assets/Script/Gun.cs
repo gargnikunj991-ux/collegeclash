@@ -1,4 +1,5 @@
-using UnityEngine;
+﻿using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class Gun : MonoBehaviour
 {
@@ -7,6 +8,29 @@ public class Gun : MonoBehaviour
 
     public float fireRate = 0.2f;
     private float nextFireTime = 0f;
+
+    bool isShooting = false;
+
+    public void OnFire(InputAction.CallbackContext context)
+    {
+        if (context.started)
+        {
+            isShooting = true;
+        }
+
+        if (context.canceled)
+        {
+            isShooting = false;
+        }
+    }
+
+    void Update()
+    {
+        if (isShooting)
+        {
+            TryShoot(); // ✅ FIXED
+        }
+    }
 
     public void TryShoot()
     {

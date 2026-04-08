@@ -13,6 +13,9 @@ public class PlayerMovement : MonoBehaviour
     private Vector2 moveInput;
     private Vector3 velocity;
     public float gravity = -9.81f;
+
+    bool isShooting = false;
+
     void Start()
     {
         controller = GetComponent<CharacterController>();
@@ -24,22 +27,35 @@ public class PlayerMovement : MonoBehaviour
         moveInput = value.Get<Vector2>();
     }
 
-    // Shoot input
-    void OnShoot()
+    // Shooting input (FIXED)
+    void OnShoot(InputValue value)
     {
-        gun.TryShoot();
+        if (GameManager.Instance.currentState != GameManager.GameState.Playing)
+            return;
+
+        isShooting = value.isPressed;
     }
 
     void Update()
     {
+        RotateToMouse(); // always allow rotation
+
+        if (GameManager.Instance.currentState != GameManager.GameState.Playing)
+            return;
+
         Move();
-        RotateToMouse();
+
+        if (isShooting)
+        {
+            gun.TryShoot();
+        }
     }
 
     void Move()
     {
         Vector3 camForward = cameraTransform.forward;
         Vector3 camRight = cameraTransform.right;
+
         velocity.y += gravity * Time.deltaTime;
         controller.Move(velocity * Time.deltaTime);
 
@@ -52,11 +68,13 @@ public class PlayerMovement : MonoBehaviour
         Vector3 move = camForward * moveInput.y + camRight * moveInput.x;
 
         controller.Move(move * speed * Time.deltaTime);
+
         if (controller.isGrounded && velocity.y < 0)
         {
             velocity.y = -2f;
         }
     }
+
     void RotateToMouse()
     {
         if (Mouse.current == null) return;
@@ -77,5 +95,4 @@ public class PlayerMovement : MonoBehaviour
             }
         }
     }
-
-}    
+}
