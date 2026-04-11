@@ -7,6 +7,8 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
     public TMP_Text timerText;
+    private float score = 0f;
+    public TMP_Text scoreText;
     public enum GameState
     {
         Start,
@@ -52,6 +54,16 @@ public class GameManager : MonoBehaviour
 
         if (endPanel != null)
             endPanel.SetActive(false);
+
+        currentState = GameState.Playing;
+        timer = matchTime;
+        Time.timeScale = 1f;
+
+        score = 0;
+        scoreText.text = "Score: 0";
+
+        if (endPanel != null)
+            endPanel.SetActive(false);
     }
 
     public void EndMatch()
@@ -70,6 +82,11 @@ public class GameManager : MonoBehaviour
     {
         Time.timeScale = 1f;
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+    public void AddScore(float amount)
+    {
+        score += amount;
+        scoreText.text = "Score: " + Mathf.FloorToInt(score);
     }
 
 }
