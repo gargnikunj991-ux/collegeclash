@@ -1,26 +1,34 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 using TMPro;
+using System.Collections.Generic;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
+
+    [Header("UI")]
     public TMP_Text timerText;
-    private float score = 0f;
     public TMP_Text scoreText;
+    public GameObject endPanel;
+
+    [Header("Game Settings")]
+    public float matchTime = 60f;
+
+    [Header("Zones")]
+    public List<Zone> zones = new List<Zone>();
+
+    private float timer;
+    private float score = 0f;
+
     public enum GameState
     {
         Start,
         Playing,
         End
     }
-    public GameObject endPanel;
 
     public GameState currentState;
-
-    public float matchTime = 60f;
-    private float timer;
 
     void Awake()
     {
@@ -34,16 +42,32 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
-        timerText.text ="Timer:"+ Mathf.Ceil(timer).ToString();
-        if (currentState == GameState.Playing)
-        {
-            timer -= Time.deltaTime;
+        if (currentState != GameState.Playing) return;
 
-            if (timer <= 0)
-            {
-                EndMatch();
-            }
+        // TIMER
+        timer -= Time.deltaTime;
+        timerText.text = "Time: " + Mathf.Ceil(timer).ToString();
+
+        if (timer <= 0)
+        {
+            EndMatch();
+            return;
         }
+
+        // SCORE SYSTEM (CLEAN + SAFE)
+        float playerScoreRate = 0f;
+
+        foreach (Zone z in zones)
+        {
+            if (z == null) continue;
+
+            playerScoreRate += z.GetScoreRateForPlayer();
+        }
+
+        // HARD LIMIT (prevents bugs/explosions)
+        playerScoreRate = Mathf.Clamp(playerScoreRate, 0f, 3f);
+
+        AddScore(playerScoreRate * Time.deltaTime);
     }
 
     public void StartMatch()
@@ -52,18 +76,25 @@ public class GameManager : MonoBehaviour
         timer = matchTime;
         Time.timeScale = 1f;
 
-        if (endPanel != null)
-            endPanel.SetActive(false);
-
-        currentState = GameState.Playing;
-        timer = matchTime;
-        Time.timeScale = 1f;
-
-        score = 0;
-        scoreText.text = "Score: 0";
+        score = 0f;
+        UpdateScoreUI();
 
         if (endPanel != null)
             endPanel.SetActive(false);
+    }
+
+    public void AddScore(float amount)
+    {
+        // FINAL SAFETY
+        amount = Mathf.Clamp(amount, 0f, 5f);
+
+        score += amount;
+        UpdateScoreUI();
+    }
+
+    void UpdateScoreUI()
+    {
+        scoreText.text = "Score: " + Mathf.FloorToInt(score);
     }
 
     public void EndMatch()
@@ -71,11 +102,20 @@ public class GameManager : MonoBehaviour
         currentState = GameState.End;
         Time.timeScale = 0f;
 
-        Debug.Log("Match Ended");
-        currentState = GameState.End;
-        Time.timeScale = 0f;
+        if (endPanel != null)
+            endPanel.SetActive(true);
 
-        endPanel.SetActive(true);
+        ShowResult();
+    }
+
+    void ShowResult()
+    {
+        int finalScore = Mathf.FloorToInt(score);
+
+        if (finalScore >= 50)
+            Debug.Log("YOU WIN");
+        else
+            Debug.Log("YOU LOSE");
     }
 
     public void RestartMatch()
@@ -83,10 +123,4 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 1f;
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
-    public void AddScore(float amount)
-    {
-        score += amount;
-        scoreText.text = "Score: " + Mathf.FloorToInt(score);
-    }
-
 }

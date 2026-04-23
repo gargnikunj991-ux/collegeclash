@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 
 public class PlayerHealth : MonoBehaviour
 {
@@ -6,6 +7,7 @@ public class PlayerHealth : MonoBehaviour
     private int currentHealth;
 
     public Transform respawnPoint;
+    bool isDead = false;
 
     void Start()
     {
@@ -14,6 +16,8 @@ public class PlayerHealth : MonoBehaviour
 
     public void TakeDamage(int damage)
     {
+        if (isDead) return; // 🔴 IMPORTANT
+
         currentHealth -= damage;
 
         Debug.Log("Player HP: " + currentHealth);
@@ -26,17 +30,31 @@ public class PlayerHealth : MonoBehaviour
 
     void Die()
     {
+        if (isDead) return;
+
+        isDead = true;
+
         Debug.Log("Player Died");
+
+        StartCoroutine(RespawnDelay());
+    }
+    IEnumerator RespawnDelay()
+    {
+        yield return new WaitForSeconds(2f);
 
         Respawn();
     }
 
     void Respawn()
     {
+        Transform spawn = FindAnyObjectByType<RespawnManager>().GetRandomSpawn();
+
+        if (spawn != null)
+        {
+            transform.position = spawn.position;
+        }
+
         currentHealth = maxHealth;
-
-        transform.position = respawnPoint.position;
-
-        Debug.Log("Player Respawned");
+        isDead = false; // 🔴 RESET
     }
 }
