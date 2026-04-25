@@ -5,6 +5,9 @@ public class PlayerHealth : MonoBehaviour
 {
     public int maxHealth = 100;
     private int currentHealth;
+    public PlayerMovement movementScript;
+    public Collider playerCollider;
+    public Renderer playerRenderer;
 
     public Transform respawnPoint;
     bool isDead = false;
@@ -36,6 +39,11 @@ public class PlayerHealth : MonoBehaviour
 
         Debug.Log("Player Died");
 
+        // Disable interaction
+        movementScript.enabled = false;
+        playerCollider.enabled = false;
+        playerRenderer.enabled = false;
+
         StartCoroutine(RespawnDelay());
     }
     IEnumerator RespawnDelay()
@@ -44,7 +52,6 @@ public class PlayerHealth : MonoBehaviour
 
         Respawn();
     }
-
     void Respawn()
     {
         Transform spawn = FindAnyObjectByType<RespawnManager>().GetRandomSpawn();
@@ -55,6 +62,12 @@ public class PlayerHealth : MonoBehaviour
         }
 
         currentHealth = maxHealth;
-        isDead = false; // 🔴 RESET
+
+        // Re-enable everything
+        movementScript.enabled = true;
+        playerCollider.enabled = true;
+        playerRenderer.enabled = true;
+
+        isDead = false;
     }
 }

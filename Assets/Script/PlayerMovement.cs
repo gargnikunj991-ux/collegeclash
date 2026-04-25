@@ -6,6 +6,7 @@ public class PlayerMovement : MonoBehaviour
     [Header("Movement")]
     public float speed = 5f;
     public Transform cameraTransform;
+    public float rotationSpeed = 8f;
 
     public Gun gun;
 
@@ -27,7 +28,7 @@ public class PlayerMovement : MonoBehaviour
         moveInput = value.Get<Vector2>();
     }
 
-    // Shooting input (FIXED)
+    // Shooting input
     void OnShoot(InputValue value)
     {
         if (GameManager.Instance.currentState != GameManager.GameState.Playing)
@@ -38,7 +39,6 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
-        RotateToMouse(); // always allow rotation
 
         if (GameManager.Instance.currentState != GameManager.GameState.Playing)
             return;
@@ -75,24 +75,4 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    void RotateToMouse()
-    {
-        if (Mouse.current == null) return;
-
-        Ray ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
-        Plane groundPlane = new Plane(Vector3.up, Vector3.zero);
-
-        if (groundPlane.Raycast(ray, out float rayLength))
-        {
-            Vector3 point = ray.GetPoint(rayLength);
-            Vector3 direction = point - transform.position;
-            direction.y = 0;
-
-            if (direction.sqrMagnitude > 0.01f)
-            {
-                Quaternion targetRotation = Quaternion.LookRotation(direction);
-                transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 15f * Time.deltaTime);
-            }
-        }
-    }
 }

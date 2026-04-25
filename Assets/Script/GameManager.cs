@@ -9,8 +9,10 @@ public class GameManager : MonoBehaviour
 
     [Header("UI")]
     public TMP_Text timerText;
-    public TMP_Text scoreText;
+    public TMP_Text playerScoreText;
+    public TMP_Text enemyScoreText;
     public GameObject endPanel;
+    public TMP_Text resultText;
 
     [Header("Game Settings")]
     public float matchTime = 60f;
@@ -19,7 +21,8 @@ public class GameManager : MonoBehaviour
     public List<Zone> zones = new List<Zone>();
 
     private float timer;
-    private float score = 0f;
+    private float playerScore = 0f;
+    private float enemyScore = 0f;
 
     public enum GameState
     {
@@ -54,20 +57,27 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        // SCORE SYSTEM (CLEAN + SAFE)
-        float playerScoreRate = 0f;
+        float playerRate = 0f;
+        float enemyRate = 0f;
 
         foreach (Zone z in zones)
         {
             if (z == null) continue;
 
-            playerScoreRate += z.GetScoreRateForPlayer();
+            playerRate += z.GetScoreRateForPlayer();
+            enemyRate += z.GetScoreRateForEnemy();
         }
 
-        // HARD LIMIT (prevents bugs/explosions)
-        playerScoreRate = Mathf.Clamp(playerScoreRate, 0f, 3f);
+        // clamp for safety
+        playerRate = Mathf.Clamp(playerRate, 0f, 3f);
+        enemyRate = Mathf.Clamp(enemyRate, 0f, 3f);
 
-        AddScore(playerScoreRate * Time.deltaTime);
+        // apply
+        playerScore += playerRate * Time.deltaTime;
+        enemyScore += enemyRate * Time.deltaTime;
+
+        // update UI
+        UpdateScoreUI();
     }
 
     public void StartMatch()
@@ -76,25 +86,20 @@ public class GameManager : MonoBehaviour
         timer = matchTime;
         Time.timeScale = 1f;
 
-        score = 0f;
+        playerScore = 0f;
+        enemyScore = 0f;
         UpdateScoreUI();
 
         if (endPanel != null)
             endPanel.SetActive(false);
     }
 
-    public void AddScore(float amount)
-    {
-        // FINAL SAFETY
-        amount = Mathf.Clamp(amount, 0f, 5f);
-
-        score += amount;
-        UpdateScoreUI();
-    }
+    
 
     void UpdateScoreUI()
     {
-        scoreText.text = "Score: " + Mathf.FloorToInt(score);
+        playerScoreText.text = "Player: " + Mathf.FloorToInt(playerScore);
+        enemyScoreText.text = "Enemy: " + Mathf.FloorToInt(enemyScore);
     }
 
     public void EndMatch()
@@ -110,12 +115,21 @@ public class GameManager : MonoBehaviour
 
     void ShowResult()
     {
-        int finalScore = Mathf.FloorToInt(score);
+        int p = Mathf.FloorToInt(playerScore);
+        int e = Mathf.FloorToInt(enemyScore);
 
-        if (finalScore >= 50)
-            Debug.Log("YOU WIN");
+        if (p > e)
+        {
+            resultText.text = "YOU WIN";
+        }
+        else if (e > p)
+        {
+            resultText.text = "YOU LOSE";
+        }
         else
-            Debug.Log("YOU LOSE");
+        {
+            resultText.text = "DRAW";
+        }
     }
 
     public void RestartMatch()
