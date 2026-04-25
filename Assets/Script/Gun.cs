@@ -19,6 +19,13 @@ public class Gun : MonoBehaviour
     private float nextFireTime = 0f;
     private bool isShooting = false;
 
+    private AudioSource audioSource; // ✔ correct place
+
+    void Start()
+    {
+        audioSource = GetComponent<AudioSource>(); // ✔ assign once
+    }
+
     void Update()
     {
         // recoil recovery
@@ -63,18 +70,36 @@ public class Gun : MonoBehaviour
             return;
         }
 
-        // recoil kick
+        // recoil
         if (gunVisual != null)
         {
             gunVisual.localPosition -= new Vector3(0, 0, recoilAmount);
         }
+
+        // 🔊 PLAY SOUND
+        if (audioSource != null)
+        {
+            audioSource.Play();
+        }
+
+        // shoot from center
         Ray ray = Camera.main.ScreenPointToRay(
-    new Vector3(Screen.width / 2, Screen.height / 2)
+            new Vector3(Screen.width / 2, Screen.height / 2)
+
+        );
+        Vector3 spread = new Vector3(
+    Random.Range(-0.02f, 0.02f),
+    Random.Range(-0.02f, 0.02f),
+    0f
 );
 
-        Debug.DrawRay(ray.origin, ray.direction * range, Color.red, 0.5f);
+        ray.direction += spread;
 
-        if (Physics.Raycast(ray, out RaycastHit hit, range))
+        Debug.DrawRay(ray.origin, ray.direction * range, Color.red, 0.3f);
+
+        int layerMask = ~LayerMask.GetMask("Zone");
+
+        if (Physics.Raycast(ray, out RaycastHit hit, range, layerMask))
         {
             Debug.Log("Hit: " + hit.collider.name);
 
@@ -83,12 +108,13 @@ public class Gun : MonoBehaviour
             if (enemy != null)
             {
                 enemy.TakeDamage((int)damage);
-
                 if (HitMarkerManager.Instance != null)
-                {
                     HitMarkerManager.Instance.ShowHit();
-                }
-            }
+
+                if (HitSound.Instance != null)
+                    HitSound.Instance.Play();
+            
+        }
         }
     }
 }
