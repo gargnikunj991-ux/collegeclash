@@ -18,12 +18,19 @@ public class Gun : MonoBehaviour
 
     private float nextFireTime = 0f;
     private bool isShooting = false;
+    public AudioClip[] shootSounds;
+    private Camera cam;
+    public GameObject hitEffect; // particle effect 
+    public float baseSpread = 0.01f;
+    public float movingSpread = 0.04f; // add bullet spread
+    public float shootingSpread = 0.03f;
 
     private AudioSource audioSource; // ✔ correct place
 
     void Start()
     {
-        audioSource = GetComponent<AudioSource>(); // ✔ assign once
+        audioSource = GetComponent<AudioSource>();
+        cam = Camera.main;
     }
 
     void Update()
@@ -69,31 +76,44 @@ public class Gun : MonoBehaviour
             Debug.LogError("FirePoint not assigned!");
             return;
         }
+        
 
         // recoil
         if (gunVisual != null)
         {
-            gunVisual.localPosition -= new Vector3(0, 0, recoilAmount);
+            gunVisual.localPosition -= new Vector3(
+          Random.Range(-recoilAmount * 0.5f, recoilAmount * 0.5f),
+          Random.Range(recoilAmount * 0.5f, recoilAmount),
+          recoilAmount
+            );
         }
-
-        // 🔊 PLAY SOUND
-        if (audioSource != null)
+        // gun sound 
+        if (audioSource != null && shootSounds.Length > 0)
         {
-            audioSource.Play();
+            audioSource.PlayOneShot(
+                shootSounds[Random.Range(0, shootSounds.Length)]
+            );
         }
 
-        // shoot from center
-        Ray ray = Camera.main.ScreenPointToRay(
+        Ray ray = cam.ScreenPointToRay(
             new Vector3(Screen.width / 2, Screen.height / 2)
-
         );
-        Vector3 spread = new Vector3(
-    Random.Range(-0.02f, 0.02f),
-    Random.Range(-0.02f, 0.02f),
-    0f
-);
+        float currentSpread = isShooting ? shootingSpread : baseSpread;
 
-        ray.direction += spread;
+        Vector3 spread = new Vector3(
+            Random.Range(-currentSpread, currentSpread),
+            Random.Range(-currentSpread, currentSpread),
+            0f
+        );
+
+        Vector3 direction = ray.direction;
+        direction += new Vector3(
+            Random.Range(-0.02f, 0.02f),
+            Random.Range(-0.02f, 0.02f),
+            0f
+        );
+        direction.Normalize();
+        ray.direction = direction;
 
         Debug.DrawRay(ray.origin, ray.direction * range, Color.red, 0.3f);
 
@@ -101,20 +121,28 @@ public class Gun : MonoBehaviour
 
         if (Physics.Raycast(ray, out RaycastHit hit, range, layerMask))
         {
-            Debug.Log("Hit: " + hit.collider.name);
-
-            EnemyHealth enemy = hit.collider.GetComponentInParent<EnemyHealth>();
-
-            if (enemy != null)
-            {
-                enemy.TakeDamage((int)damage);
-                if (HitMarkerManager.Instance != null)
-                    HitMarkerManager.Instance.ShowHit();
-
-                if (HitSound.Instance != null)
-                    HitSound.Instance.Play();
-            
+            HandleHit(hit);
         }
+
+
+    }
+    // manage hit 
+    void HandleHit(RaycastHit hit)
+    {
+        Instantiate(hitEffect, hit.point, Quaternion.LookRotation(hit.normal));
+
+        EnemyHealth enemy = hit.collider.GetComponentInParent<EnemyHealth>();
+
+        if (enemy != null)
+        {
+            if (HitMarkerManager.Instance != null)
+                HitMarkerManager.Instance.ShowHit();
+
+            if (HitSound.Instance != null)
+                HitSound.Instance.Play();
+
+            enemy.TakeDamage((int)damage);
         }
     }
 }
+
