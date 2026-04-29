@@ -1737,7 +1737,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Zone
   captureTime: 3
-  scoreRate: 5
+  scoreRate: 1
 --- !u!23 &679940450
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1829,7 +1829,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 0.99999994
+  m_Radius: 0.5
   m_Center: {x: 0.000000059604645, y: 0, z: -0.00000008940697}
 --- !u!1 &685216669
 GameObject:
@@ -2448,7 +2448,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Zone
   captureTime: 3
-  scoreRate: 5
+  scoreRate: 1
 --- !u!135 &954005212
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -2468,7 +2468,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
+  m_Radius: 0.5
   m_Center: {x: 0.000000059604645, y: 0, z: -0.00000008940697}
 --- !u!1 &966007785
 GameObject:
@@ -2640,7 +2640,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Zone
   captureTime: 3
-  scoreRate: 5
+  scoreRate: 1
 --- !u!23 &1019914235
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -2732,7 +2732,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 0.99999994
+  m_Radius: 0.5
   m_Center: {x: 0.000000059604645, y: 0, z: -0.00000008940697}
 --- !u!1 &1102524742
 GameObject:
@@ -2764,8 +2764,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enemyPrefab: {fileID: 5372888618682735814, guid: 2e533dcb4ecee6e4d822e4faf713ea45, type: 3}
-  spawnInterval: 1
-  spawnRadius: 10
+  spawnInterval: 2
+  spawnRadius: 25
 --- !u!4 &1102524744
 Transform:
   m_ObjectHideFlags: 0
@@ -3096,10 +3096,12 @@ MonoBehaviour:
   recoilAmount: 0.1
   recoilRecoverSpeed: 10
   shootSounds: []
-  hitEffect: {fileID: 3388059295774003442, guid: c9f1b0f8634db1f48a4292974ca9ca11, type: 3}
+  hitEffect: {fileID: 2226348518236343168, guid: c9f1b0f8634db1f48a4292974ca9ca11, type: 3}
   baseSpread: 0.01
   movingSpread: 0.04
   shootingSpread: 0.03
+  enemyHitEffect: {fileID: 6755135613353793190, guid: 948c47f4e8153c6429376ccee0cbb236, type: 3}
+  wallHitEffect: {fileID: 7019933332730399978, guid: 11e613c2359c2c347b556b3af9f9cb4e, type: 3}
 --- !u!82 &1466065696
 AudioSource:
   m_ObjectHideFlags: 0

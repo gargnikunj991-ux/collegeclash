@@ -7,9 +7,8 @@ public class Zone : MonoBehaviour
 
     private float progress = 0f;
 
-    private bool playerInside = false;
-    private bool enemyInside = false;
-
+    private int playerCount = 0;
+    private int enemyCount = 0;
     private Renderer zoneRenderer;
     private Material zoneMaterial;
 
@@ -42,12 +41,11 @@ public class Zone : MonoBehaviour
         if (GameManager.Instance.currentState != GameManager.GameState.Playing)
             return;
 
-        int playerCount = playerInside ? 1 : 0;
-        int enemyCount = enemyInside ? 1 : 0;
 
         // CONTESTED
         if (playerCount > 0 && enemyCount > 0)
         {
+            progress += Time.deltaTime * (playerCount - enemyCount);
             ShowContestedEffect();
             return;
         }
@@ -55,8 +53,8 @@ public class Zone : MonoBehaviour
         // PLAYER CAPTURE
         if (playerCount > 0)
         {
-            progress += Time.deltaTime;
-            Debug.Log("Player"+progress);
+            progress += Time.deltaTime * playerCount;
+            Debug.Log("Player" + progress);
 
             if (progress >= captureTime)
             {
@@ -69,7 +67,7 @@ public class Zone : MonoBehaviour
         // ENEMY CAPTURE
         else if (enemyCount > 0)
         {
-            progress -= Time.deltaTime;
+            progress -= Time.deltaTime * enemyCount;
             Debug.Log("Enemy" + progress);
             if (progress <= 0)
             {
@@ -128,32 +126,37 @@ public class Zone : MonoBehaviour
         zoneMaterial.EnableKeyword("_EMISSION");
         zoneMaterial.SetColor("_EmissionColor", contested * 2f);
     }
-
+    // handle score rate for both enemy and player 
     public float GetScoreRateForPlayer()
     {
-        return currentOwner == ZoneOwner.Player ? scoreRate : 0f;
+        if (currentOwner == ZoneOwner.Player && enemyCount == 0)
+            return scoreRate;
+
+        return 0f;
     }
 
     public float GetScoreRateForEnemy()
     {
-        return currentOwner == ZoneOwner.Enemy ? scoreRate : 0f;
-    }
+        if (currentOwner == ZoneOwner.Enemy && playerCount == 0)
+            return scoreRate;
 
+        return 0f;
+    }
     void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
-            playerInside = true;
+            playerCount++;
 
         if (other.CompareTag("Enemy"))
-            enemyInside = true;
+            enemyCount++;
     }
 
     void OnTriggerExit(Collider other)
     {
         if (other.CompareTag("Player"))
-            playerInside = false;
+            playerCount--;
 
         if (other.CompareTag("Enemy"))
-            enemyInside = false;
+            enemyCount--;
     }
 }

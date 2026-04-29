@@ -4,8 +4,19 @@ public class Enemy : MonoBehaviour
 {
     public float speed = 3f;
     private Transform player;
+    enum EnemyState
+    {
+        Chase,
+        Attack
+    }
 
-    float damageCooldown = 1f;
+    EnemyState currentState;
+    public float attackRange = 3f;
+    public float attackCooldown = 1.5f;
+    private float lastAttackTime;
+    public float stoppingDistance = 2.5f;
+
+    float damageCooldown = 1.5f;
     float lastHitTime = 0f;
 
     private Vector3 originalScale;
@@ -18,15 +29,62 @@ public class Enemy : MonoBehaviour
 
     void Update()
     {
-        if (GameManager.Instance.currentState != GameManager.GameState.Playing)
-            return;
+        float distance = Vector3.Distance(transform.position, player.position);
 
-        if (player == null) return;
+        if (attackRange >= stoppingDistance)
+        {
+            currentState = EnemyState.Chase;
+        }
+        else
+        {
+            currentState = EnemyState.Attack;
+        }
 
-        Vector3 direction = (player.position - transform.position).normalized;
-        direction.y = 0;
+        if (currentState == EnemyState.Chase)
+        {
+            MoveTowardsPlayer(distance);
+        }
+        else if (currentState == EnemyState.Attack)
+        {
+            TryAttack();
+        }
+    }
+    void TryAttack()
+    {
+        if (Time.time >= lastAttackTime + attackCooldown)
+        {
+            lastAttackTime = Time.time;
+            Attack();
+        }
+    }
+    void Attack()
+    {
+        Debug.Log("Enemy attacked");
 
-        transform.position += direction * speed * Time.deltaTime;
+        PlayerHealth playerHealth = player.GetComponent<PlayerHealth>();
+        if (playerHealth != null)
+        {
+            playerHealth.TakeDamage(10);
+        }
+    }
+    void MoveTowardsPlayer(float distance)
+    {
+        if (distance > stoppingDistance)
+        {
+            Vector3 offset = new Vector3(
+                Mathf.Sin(Time.time + transform.GetInstanceID()) * 0.5f,
+                0,
+                Mathf.Cos(Time.time + transform.GetInstanceID()) * 0.5f
+            );
+
+            Vector3 targetPosition = player.position + offset;
+
+            transform.position = Vector3.MoveTowards(
+                transform.position,
+                targetPosition,
+                speed * Time.deltaTime
+            );
+        }
     }
 
     void OnTriggerStay(Collider other)

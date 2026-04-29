@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using NUnit.Framework.Internal;
+using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class Gun : MonoBehaviour
@@ -24,7 +25,8 @@ public class Gun : MonoBehaviour
     public float baseSpread = 0.01f;
     public float movingSpread = 0.04f; // add bullet spread
     public float shootingSpread = 0.03f;
-
+    public GameObject enemyHitEffect;
+    public GameObject wallHitEffect;
     private AudioSource audioSource; // ✔ correct place
 
     void Start()
@@ -107,21 +109,23 @@ public class Gun : MonoBehaviour
         );
 
         Vector3 direction = ray.direction;
-        direction += new Vector3(
-            Random.Range(-0.02f, 0.02f),
-            Random.Range(-0.02f, 0.02f),
-            0f
-        );
+        direction += spread;
         direction.Normalize();
         ray.direction = direction;
 
         Debug.DrawRay(ray.origin, ray.direction * range, Color.red, 0.3f);
 
+
         int layerMask = ~LayerMask.GetMask("Zone");
 
         if (Physics.Raycast(ray, out RaycastHit hit, range, layerMask))
         {
+            Debug.Log("HIT: " + hit.collider.name);
             HandleHit(hit);
+        }
+        else
+        {
+            Debug.Log("MISS");
         }
 
 
@@ -129,12 +133,14 @@ public class Gun : MonoBehaviour
     // manage hit 
     void HandleHit(RaycastHit hit)
     {
-        Instantiate(hitEffect, hit.point, Quaternion.LookRotation(hit.normal));
-
         EnemyHealth enemy = hit.collider.GetComponentInParent<EnemyHealth>();
 
         if (enemy != null)
         {
+            if (enemyHitEffect != null)
+                Instantiate(enemyHitEffect, hit.point + hit.normal * 0.02f, Quaternion.LookRotation(hit.normal));
+            Debug.Log("Spawning enemy effect");
+
             if (HitMarkerManager.Instance != null)
                 HitMarkerManager.Instance.ShowHit();
 
@@ -143,6 +149,13 @@ public class Gun : MonoBehaviour
 
             enemy.TakeDamage((int)damage);
         }
+        else
+        {
+            if (wallHitEffect != null)
+                Instantiate(wallHitEffect, hit.point, Quaternion.LookRotation(hit.normal));
+            Debug.Log("Spawning wall effect");
+        }
     }
 }
+
 
